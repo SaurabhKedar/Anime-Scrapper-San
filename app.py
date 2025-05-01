@@ -39,7 +39,7 @@ html = driver.page_source
 soup = BeautifulSoup(html, 'lxml')
 
 # Extract anime list containers with class
-animeList = soup.find_all('div', class_ = 'tab-content')
+#animeList = soup.find_all('div', class_ = 'tab-content')
 
 # # Store all inner div IDs
 # all_inner_ids = []
