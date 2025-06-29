@@ -43,7 +43,7 @@ def fetch_specific_anime():
                 'Link': anchor['href']                     # URL link to the anime page
             }
             anime_data_list.append(anime_data)
-
+ 
     # List to hold all anime that match the user's search query
     matching_anime = []
 
@@ -51,12 +51,19 @@ def fetch_specific_anime():
     for anime in anime_data_list:
         anime_title_lower = anime["AnimeName"].lower()
 
-        # Check if user query exactly matches or is contained within the anime name (partial match)
-        if search_query == anime_title_lower or search_query in anime_title_lower:
+        # CASE 1: User pressed Enter (no input), and we're in the 'hash' section
+        if search_query == "" and searchId == "hash":
+
+            # Include if title is empty OR first character is not a letter
+            if anime_title_lower == "" or not anime_title_lower[0].isalpha():
+                matching_anime.append(anime)
+
+        # CASE 2: User entered some text — normal substring or full match
+        elif search_query in anime_title_lower:
             matching_anime.append(anime)
 
     # If any matches found, display count and details, then prompt to save results
-    if matching_anime:
+    if len(matching_anime) > 1:
         print(f"\n{len(matching_anime)} matching anime(s) found:\n")
         # Save matching anime to JSON file with the search query as key
         prompt_and_save({f"{search_query}": matching_anime})
@@ -64,10 +71,7 @@ def fetch_specific_anime():
         # No matches found, inform the user to try again with a different keyword
         print("\nNo matching anime found. Try a different keyword.")
 
-    matching_anime = [{
-            "AnimeName": "",
-            "Link": "/anime/a324a70c-a1cc-b320-f824-0e02e40af727"
-        }]
+    print(matching_anime)
     for anime in matching_anime:
         anime_details = visit_anime_detail(driver, anime) 
         anime_details = fetch_anime_episodes(driver, anime_details);
