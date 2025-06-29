@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
 import time
 from common import setup_driver
+from common import fetch_anime_episodes
 from common import prompt_and_save
+from common import visit_anime_detail
 
 # Function to search for a specific anime name (case-insensitive partial match)
 def fetch_specific_anime():
@@ -17,8 +19,8 @@ def fetch_specific_anime():
 
     # Setup undetected Chrome driver using common.py helper function
     driver = setup_driver()
-    baseUrl = 'https://animepahe.ru'
-    driver.get(baseUrl + "/anime")
+    BASE_URL = 'https://animepahe.ru'
+    driver.get(BASE_URL + "/anime")
 
     # Wait for page to fully load dynamic JS content (adjust if needed)
     time.sleep(5)
@@ -58,13 +60,17 @@ def fetch_specific_anime():
         print(f"\n{len(matching_anime)} matching anime(s) found:\n")
         # Save matching anime to JSON file with the search query as key
         prompt_and_save({f"{search_query}": matching_anime})
-
-        # Print each matched anime's details on console
-        for anime in matching_anime:
-            print(anime)
     else:
         # No matches found, inform the user to try again with a different keyword
         print("\nNo matching anime found. Try a different keyword.")
+
+    matching_anime = [{
+            "AnimeName": "",
+            "Link": "/anime/a324a70c-a1cc-b320-f824-0e02e40af727"
+        }]
+    for anime in matching_anime:
+        anime_details = visit_anime_detail(driver, anime) 
+        anime_details = fetch_anime_episodes(driver, anime_details);
 
     # Close the browser session cleanly
     driver.quit()

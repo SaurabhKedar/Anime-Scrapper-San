@@ -2,16 +2,18 @@ from bs4 import BeautifulSoup
 import time
 from common import setup_driver  # Import shared function to set up undetected Chrome driver
 from common import prompt_and_save  # Import shared function to prompt user and save data to JSON
+from common import  visit_anime_detail #Fetch Anime Details
+from common import fetch_anime_episodes #fetch anime episodes
 
 # Function to scrape all anime from the site and optionally save the data to a JSON file
 def fetch_all_anime():
     # Initialize undetected Chrome driver
     driver = setup_driver()
 
-    baseUrl = 'https://animepahe.ru'
+    BASE_URL = 'https://animepahe.ru'
 
     # Navigate to the main anime listing page
-    driver.get(baseUrl + "/anime")
+    driver.get(BASE_URL + "/anime")
 
     # Wait for dynamic JavaScript content to load fully (adjust time as needed)
     time.sleep(5)
@@ -65,6 +67,14 @@ def fetch_all_anime():
 
     # Prompt the user if they want to save the collected data and save if requested
     prompt_and_save(id_div_dict)
+
+    for section_id, anime_list in id_div_dict.items():
+        print(f"\nSection ID: {section_id} -> {len(anime_list)} anime(s)")
+
+        for anime in anime_list:
+            anime_details = visit_anime_detail(driver, anime) 
+            anime_details = fetch_anime_episodes(driver, anime);
+            print(anime_details)
 
     # Close the browser session cleanly
     driver.quit()
