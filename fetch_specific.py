@@ -63,18 +63,36 @@ def fetch_specific_anime():
             matching_anime.append(anime)
 
     # If any matches found, display count and details, then prompt to save results
-    if len(matching_anime) > 1:
+    if len(matching_anime) > 0:
         print(f"\n{len(matching_anime)} matching anime(s) found:\n")
-        # Save matching anime to JSON file with the search query as key
-        prompt_and_save({f"{search_query}": matching_anime})
+
+        while True:
+            # Print numbered list of matched anime titles
+            for idx, anime in enumerate(matching_anime, start=1):
+                print(f"{idx}. AnimeName: {anime['AnimeName']}")
+
+            # Ask user to select one by number
+            try:
+                choice = int(input("\nEnter the number of the anime you want to proceed with: "))
+                if 1 <= choice <= len(matching_anime):
+                    selected_anime = matching_anime[choice - 1]
+                    print(f"\nYou selected: {selected_anime['AnimeName']}")
+                    
+                    #Fetch selected anime and their episodes
+                    anime_details = visit_anime_detail(driver, selected_anime)
+                    anime_details = fetch_anime_episodes(driver, anime_details)
+                    print(anime_details)
+
+                    # Ask if they want to select another
+                    again = input("\nDo you want to choose another anime from the list? (yes/no): ").strip().lower()
+                    if again != "yes":
+                        print("Exiting selection.")
+                        break
+            except ValueError:
+                print("Please enter a valid number.\n")
     else:
         # No matches found, inform the user to try again with a different keyword
         print("\nNo matching anime found. Try a different keyword.")
-
-    print(matching_anime)
-    for anime in matching_anime:
-        anime_details = visit_anime_detail(driver, anime) 
-        anime_details = fetch_anime_episodes(driver, anime_details);
 
     # Close the browser session cleanly
     driver.quit()
